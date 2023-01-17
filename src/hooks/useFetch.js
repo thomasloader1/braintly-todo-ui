@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const useFetch = (URL) => {
+export const useFetch = (URL, eventOnTask = null) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
@@ -15,19 +15,7 @@ export const useFetch = (URL) => {
       setLoading(false);
     };
 
-    /* fetch(URL)
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-      })
-      .catch((err) => {
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      }); */
-
     fetchData();
-  }, [URL]);
+  }, [URL, eventOnTask]);
   return { data, error, loading };
 };
