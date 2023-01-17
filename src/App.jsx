@@ -8,6 +8,7 @@ import AddTodoForm from "./components/AddTodoForm";
 
 function App() {
   const { loadingTasks, priorities } = useContext(AppContext);
+
   return (
     <div className="container">
       <img src={braintlyLogo} className="img-fuild" width={80} alt="" />
