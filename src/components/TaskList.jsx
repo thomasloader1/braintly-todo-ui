@@ -4,18 +4,19 @@ import FormControls from "./FormControls";
 import Task from "./Task";
 
 const TaskList = () => {
-  const { tasks } = useContext(AppContext);
+  const { tasks, selectTask, setSelectTask } = useContext(AppContext);
   const [tasksStore, setTasksStore] = useState([]);
-  const [selectTask, setSelectTask] = useState(null);
 
   useEffect(() => {
     setTasksStore(tasks);
-  }, []);
+  }, [tasksStore]);
 
   const handleOrderByDueDate = (evt) => {
     const tasksOrdered = tasksStore.sort((a, b) => {
       return new Date(b.due_date) - new Date(a.due_date);
     });
+
+    console.log({ tasksOrdered });
 
     setTasksStore(tasksOrdered);
   };

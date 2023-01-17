@@ -42,9 +42,14 @@ const Task = ({ task, setSelectTask }) => {
       <label className="form-check-label me-auto ms-3" htmlFor={task.id}>
         {task.title}
       </label>
-      <span className={`badge ${priorityClass} rounded-pill ms-auto`}>
+      <span
+        className={`badge ${
+          task.is_completed > 0 ? "bg-success" : priorityClass
+        } rounded-pill ms-auto`}
+      >
         {task.priority_name} | Deadline:{" "}
-        {moment(task.due_date).format("DD/MM/YY HH:mm a")}
+        {moment(task.due_date).format("DD/MM/YY HH:mm a")}{" "}
+        {task.is_completed > 0 && " | Finalizada"}
       </span>
     </li>
   );
