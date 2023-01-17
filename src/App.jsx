@@ -10,7 +10,7 @@ function App() {
   const { loadingTasks, priorities } = useContext(AppContext);
   return (
     <div className="container">
-      <img src={braintlyLogo} alt="" />
+      <img src={braintlyLogo} className="img-fuild" width={80} alt="" />
       <h1>ToDo List - Braintly</h1>
       <h3>Agregar tarea una tarea nueva</h3>
       <AddTodoForm priorities={priorities} />
