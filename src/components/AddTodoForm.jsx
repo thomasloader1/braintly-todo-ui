@@ -1,10 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import moment from "moment";
+import axios from "axios";
+import { AppContext } from "../Provider/StateProvider";
 const AddTodoForm = ({ priorities }) => {
-  const [priority, setPriority] = useState({ id: null, name: null });
-  const [taskTitle, setTaskTitle] = useState(null);
-  const [taskDate, setTaskDate] = useState(null);
-  const [taskTime, setTaskTime] = useState(null);
+  const { setEventOnTask } = useContext(AppContext);
+  const [priority, setPriority] = useState({ id: false, name: false });
+  const [taskTitle, setTaskTitle] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [taskDate, setTaskDate] = useState(false);
+  const [taskTime, setTaskTime] = useState(false);
   const formAddNewTaskRef = useRef(null);
 
   const formReadyToSubmit = !(
@@ -16,7 +20,9 @@ const AddTodoForm = ({ priorities }) => {
 
   const handleSubmitTask = async (evt) => {
     evt.preventDefault();
+    setFetching(true);
     const formData = new FormData(formAddNewTaskRef.current);
+    console.log(formData);
 
     const dueDate = moment(
       `${formData.get("date")} ${formData.get("time")}`
@@ -27,15 +33,21 @@ const AddTodoForm = ({ priorities }) => {
     formData.append("due_date", dueDate);
     formData.append("is_completed", 0);
 
-    /*
+    axios
+      .post("http://localhost:8000/api/tasks", {
+        title: formData.get("task_title"),
+        priority_id: formData.get("priority_id"),
+        due_date: dueDate,
+        is_completed: 0,
+      })
+      .then((data) => {
+        setEventOnTask("add");
+        console.log({ data });
+      })
+      .catch((err) => console.error({ err }))
+      .finally(() => setFetching(false));
 
-    fetch("http://localhost:8000/api/tasks", {
-      method: "POST",
-      body: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }); */
+    formAddNewTaskRef.current.reset();
   };
 
   const handleTaskTitle = (evt) => {
@@ -43,11 +55,14 @@ const AddTodoForm = ({ priorities }) => {
     setTaskTitle(value);
   };
 
-  const handleClickPriority = (evt, clickedPriority) => {
-    const { id, name } = clickedPriority;
+  const handleClickPriority = (evt) => {
+    const { value } = evt.target;
+    const [priority] = priorities.filter(
+      (priority) => priority.id === Number(value)
+    );
+
     setPriority({
-      id,
-      name,
+      ...priority,
     });
   };
 
@@ -76,30 +91,18 @@ const AddTodoForm = ({ priorities }) => {
           placeholder="Realizar deploy back-end"
           onChange={handleTaskTitle}
         />
-        <input type="hidden" name="priority_id" value={priority.id} />
-        <button
-          className="btn btn-secondary dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
+        <select
+          className="form-select btn btn-secondary "
+          name="priority_id"
+          onChange={handleClickPriority}
         >
-          {priority.id > 0 ? priority.name : "Prioridad"}
-        </button>
-        <ul className="dropdown-menu dropdown-menu-end">
+          <option selected>Prioridad</option>
           {priorities.map((priority) => (
-            <li key={priority.id}>
-              <a
-                className="dropdown-item"
-                href="#"
-                onClick={(evt) => {
-                  handleClickPriority(evt, priority);
-                }}
-              >
-                {priority.name}
-              </a>
-            </li>
+            <option key={priority.id} value={priority.id}>
+              {priority.name}
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
       <div className="input-group">
         <span className="input-group-text bg-secondary text-white">
@@ -124,9 +127,20 @@ const AddTodoForm = ({ priorities }) => {
         <button
           className="btn btn-primary "
           type="submit"
-          disabled={formReadyToSubmit}
+          disabled={formReadyToSubmit || fetching}
         >
-          Agregar
+          {fetching ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span className="visually-hidden">Procesando</span>
+            </>
+          ) : (
+            "Agregar"
+          )}
         </button>
       </div>
     </form>
